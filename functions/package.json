@@ -10,6 +10,9 @@
     "logs": "firebase functions:log"
   },
   "main": "lib/index.js",
+  "engines": {
+    "node": "~6.0"
+  },
   "dependencies": {
     "actions-on-google": "^1.10.0",
     "firebase-admin": "~5.8.1",
