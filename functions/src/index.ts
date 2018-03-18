@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import functions = require("firebase-functions");
 
 export const dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
