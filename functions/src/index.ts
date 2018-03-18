@@ -1,34 +1,37 @@
 import functions = require("firebase-functions");
-const DialogflowApp = require('actions-on-google').DialogflowApp; // Google Assistant helper library
+import {request} from "request";
 
-export const dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
-    console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
-    console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
-    if (request.body.result) {
-        processV1Request(request, response);
+const DialogflowApp = require('actions-on-google').DialogflowApp; // Google Assistant helper library
+const PAGE_ACCESS_TOKEN = "";
+
+export const dialogflowFirebaseFulfillment = functions.https.onRequest((req, response) => {
+    console.log('Dialogflow Request headers: ' + JSON.stringify(req.headers));
+    console.log('Dialogflow Request body: ' + JSON.stringify(req.body));
+    if (req.body.result) {
+        processV1Request(req, response);
     } else {
         console.log('Invalid Request');
-        response.status(400).end('Invalid Webhook Request (expecting v1 webhook request)');
+        response.status(400).end('Invalid Webhook Request (expecting v1 webhook req)');
         return;
     }
 
 });
 /*
-* Function to handle v1 webhook requests from Dialogflow
+* Function to handle v1 webhook reqs from Dialogflow
 */
-function processV1Request (request, response) {
-    let action = request.body.result.action; // https://dialogflow.com/docs/actions-and-parameters
-    let parameters = request.body.result.parameters; // https://dialogflow.com/docs/actions-and-parameters
-    let inputContexts = request.body.result.contexts; // https://dialogflow.com/docs/contexts
-    let requestSource = (request.body.originalRequest) ? request.body.originalRequest.source : undefined;
-    let senderID = (request.body.originalRequest === "facebook") ? requestSource.sender.id : undefined;
+function processV1Request (req, response) {
+    let action = req.body.result.action; // https://dialogflow.com/docs/actions-and-parameters
+    let parameters = req.body.result.parameters; // https://dialogflow.com/docs/actions-and-parameters
+    let inputContexts = req.body.result.contexts; // https://dialogflow.com/docs/contexts
+    let requestSource = (req.body.originalRequest) ? req.body.originalRequest.source : undefined;
+    let senderID = (req.body.originalRequest === "facebook") ? requestSource.sender.id : undefined;
     const googleAssistantRequest = 'google'; // Constant to identify Google Assistant requests
-    const dapp = new DialogflowApp({request: request, response: response});
+    const dapp = new DialogflowApp({request: req, response: response});
     // Create handlers for Dialogflow actions as well as a 'default' handler
     const actionHandlers = {
         // The default welcome intent has been matched, welcome the user (https://dialogflow.com/docs/events#default_welcome_intent)
         'input.welcome': () => {
-            // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+            // Use the Actions on Google lib to respond to Google reqs; for other reqs use JSON
             if (requestSource === googleAssistantRequest) {
                 sendGoogleResponse('Hello, Welcome to my Dialogflow agent!'); // Send simple response to user
             } else {
@@ -37,7 +40,7 @@ function processV1Request (request, response) {
         },
         // The default fallback intent has been matched, try to recover (https://dialogflow.com/docs/intents#fallback_intents)
         'input.unknown': () => {
-            // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+            // Use the Actions on Google lib to respond to Google reqs; for other reqs use JSON
             if (requestSource === googleAssistantRequest) {
                 sendGoogleResponse('I\'m having trouble, can you try that again?'); // Send simple response to user
             } else {
@@ -46,7 +49,7 @@ function processV1Request (request, response) {
         },
         // Default handler for unknown or undefined actions
         'default': () => {
-            // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+            // Use the Actions on Google lib to respond to Google reqs; for other reqs use JSON
             if (requestSource === googleAssistantRequest) {
                 let responseToUser = {
                     //googleRichResponse: googleRichResponse, // Optional, uncomment to enable
@@ -70,15 +73,15 @@ function processV1Request (request, response) {
     if (!actionHandlers[action]) {
         action = 'default';
     }
-    // Run the proper handler function to handle the request from Dialogflow
+    // Run the proper handler function to handle the req from Dialogflow
     actionHandlers[action]();
     // Function to send correctly formatted Google Assistant responses to Dialogflow which are then sent to the user
     function sendGoogleResponse (responseToUser) {
         if (typeof responseToUser === 'string') {
-            dapp.ask(responseToUser); // Google Assistant response
+            req.ask(responseToUser); // Google Assistant response
         } else {
             // If speech or displayText is defined use it to respond
-            let googleResponse = dapp.buildRichResponse().addSimpleResponse({
+            let googleResponse = req.buildRichResponse().addSimpleResponse({
                 speech: responseToUser.speech || responseToUser.displayText,
                 displayText: responseToUser.displayText || responseToUser.speech
             });
@@ -88,10 +91,10 @@ function processV1Request (request, response) {
             }
             // Optional: add contexts (https://dialogflow.com/docs/contexts)
             if (responseToUser.googleOutputContexts) {
-                dapp.setContext(...responseToUser.googleOutputContexts);
+                req.setContext(...responseToUser.googleOutputContexts);
             }
             console.log('Response to Dialogflow (AoG): ' + JSON.stringify(googleResponse));
-            dapp.ask(googleResponse); // Send response to Dialogflow and Google Assistant
+            req.ask(googleResponse); // Send response to Dialogflow and Google Assistant
         }
     }
     // Function to send correctly formatted responses to Dialogflow which are then sent to the user
@@ -117,7 +120,7 @@ function processV1Request (request, response) {
         }
     }
 }
-// Construct rich response for Google Assistant (v1 requests only)
+// Construct rich response for Google Assistant (v1 reqs only)
 const app = new DialogflowApp();
 const googleRichResponse = app.buildRichResponse()
     .addSimpleResponse('This is the first simple response for Google Assistant')
@@ -138,7 +141,7 @@ const googleRichResponse = app.buildRichResponse()
             'Image alternate text'))
     .addSimpleResponse({ speech: 'This is another simple response',
         displayText: 'This is the another simple response 💁' });
-// Rich responses for Slack and Facebook for v1 webhook requests
+// Rich responses for Slack and Facebook for v1 webhook reqs
 const richResponsesV1 = {
     'slack': {
         'text': 'This is a text response for Slack.',
@@ -179,3 +182,23 @@ const richResponsesV1 = {
         }
     }
 };
+
+function userInfoRequest(userId) {
+    return new Promise((resolve, reject) => {
+        request({
+                method: 'GET',
+                uri: "https://graph.facebook.com/v2.6/" + userId + "?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=" + PAGE_ACCESS_TOKEN
+            },
+            function (error, response) {
+                if (error) {
+                    console.error('Error while userInfoRequest: ', error);
+                    reject(error);
+                } else {
+                    console.log('userInfoRequest result: ', response.body);
+                    let userInfo = JSON.parse(response.body);
+                    userInfo.fb_id = userId;
+                    resolve(userInfo);
+                }
+            });
+    });
+}
