@@ -33,12 +33,13 @@ interface ResponseJson {
 
 export class DialogflowFirebaseFulfillment {
     private PAGE_ACCESS_TOKEN;
-    constructor(PAGE_ACCESS_TOKEN: string){
+
+    constructor(PAGE_ACCESS_TOKEN: string) {
         this.PAGE_ACCESS_TOKEN = PAGE_ACCESS_TOKEN;
     }
 
     run(req, response) {
-        console.log('Request:',req);
+        console.log('Request:', req.body);
         let userId: number = this.getUserID(req);
         if (userId) {
             this.userProfileRequest(userId).then((userProfile: UserProfile) =>
