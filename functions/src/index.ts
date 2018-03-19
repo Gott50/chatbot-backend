@@ -6,10 +6,30 @@ const PAGE_ACCESS_TOKEN = "";
 export const dialogflowFirebaseFulfillment = functions.https.onRequest((req, response) => {
     console.log('Dialogflow Request headers: ' + JSON.stringify(req.headers));
     console.log('Dialogflow Request body: ' + JSON.stringify(req.body));
-        console.log('Invalid Request');
-        response.status(400).end('Invalid Webhook Request (expecting v1 webhook req)');
+    let userId: number = getUserID(req);
+    if (userId) {
+        userInfoRequest(userId);
+    } else {
+        console.log('Invalid Webhook Request (facebook_sender_id not found)');
+        response.status(400).end('Invalid Webhook Request (facebook_sender_id not found)');
         return;
+    }
 });
+
+function getUserID(req) {
+    try {
+        if (req.body.result) {
+            return req.body.originalRequest.data.data.sender.id;
+        } else if (req.body.queryResult) {
+            return req.body.originalDetectIntentRequest.payload.data.sender.id;
+        } else {
+            return undefined;
+        }
+    } catch (err) {
+        console.error(err);
+        return undefined;
+    }
+}
 
 function userInfoRequest(userId) {
     return new Promise((resolve, reject) => {
