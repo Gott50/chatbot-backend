@@ -3,14 +3,9 @@ import {request} from "request";
 import {Request, Response} from "firebase-functions";
 import {QueryResult, Sessions} from "dialogflow";
 
-// Load environment variables from .env file
-if (process.env.NODE_ENV !== "production")
-    loadEnvironmentVariables();
-function loadEnvironmentVariables() {
-    let dotenv = require('dotenv');
-    dotenv.load();
-}
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+import admin = require('firebase-admin');
+admin.initializeApp(functions.config().firebase);
+const PAGE_ACCESS_TOKEN = functions.config().facebook.page_access_token;
 
 /**
  * https://developers.facebook.com/docs/messenger-platform/identity/user-profile
