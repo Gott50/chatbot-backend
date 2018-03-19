@@ -62,7 +62,7 @@ export class DialogflowFirebaseFulfillment {
         let uri = {
             method: 'GET',
             uri: "https://graph.facebook.com/v2.6/" + userId +
-            "?fields=first_name,last_name,profile_pic,locale,timezone,gender" +
+            "?fields=first_name,last_name,profile_pic,locale,timezone,gender,is_payment_enabled,last_ad_referral" +
             "&access_token=" + this.PAGE_ACCESS_TOKEN
         };
         console.log("userProfileRequest:", uri);
