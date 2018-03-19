@@ -1,5 +1,4 @@
 import request = require('request');
-import {QueryResult, Sessions} from "dialogflow";
 
 /**
  * https://developers.facebook.com/docs/messenger-platform/identity/user-profile
