@@ -33,7 +33,8 @@ export const dialogflowFirebaseFulfillment = functions.https.onRequest((req: Req
         userProfileRequest(userId).then((userProfile: UserProfile) => sendV2Response(response, JSON.stringify(userProfile)))
             .catch(reason => {
                 console.log(reason);
-                return response.status(400).end(JSON.stringify(reason));
+                response.status(400).end(JSON.stringify(reason));
+                return;
             });
     } else {
         console.log('Invalid Webhook Request (facebook_sender_id not found)');
