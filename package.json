@@ -2,12 +2,12 @@
   "name": "chatbot-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/index.js",
   "scripts": {
     "lint": "tslint --project tsconfig.json",
     "build": "tsc",
-    "start": "npm run build && node lib/index.js"
+    "start": "npm run build && node lib/src/index.js"
   },
+  "main": "lib/src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Push2Aim/chatbot-backend.git"
