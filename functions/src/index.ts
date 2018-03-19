@@ -5,7 +5,18 @@ import {QueryResult, Sessions} from "dialogflow";
 
 import admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
-const PAGE_ACCESS_TOKEN = functions.config().facebook.page_access_token;
+function loadPAT() {
+    // Load environment variables from .env file
+    if (process.env.NODE_ENV !== "production") {
+        let dotenv = require('dotenv');
+        dotenv.load();
+        return process.env.PAGE_ACCESS_TOKEN;
+    }
+    else {
+        return functions.config().facebook.page_access_token;
+    }
+}
+const PAGE_ACCESS_TOKEN = loadPAT();
 
 /**
  * https://developers.facebook.com/docs/messenger-platform/identity/user-profile
