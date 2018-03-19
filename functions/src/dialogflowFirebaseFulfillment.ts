@@ -19,16 +19,26 @@ interface UserProfile {
     }
 }
 
+
+/**
+ * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.sessions.contexts#Context
+ */
+interface Context {
+    "name": string,
+    "lifespanCount": number,
+    "parameters": object
+}
+
 /**
  * https://dialogflow.com/docs/fulfillment
  */
 interface ResponseJson {
     "fulfillmentText"?: string,
-    "fulfillmentMessages"?: QueryResult.fulfillment_messages,
+    "fulfillmentMessages"?: [object],
     "source"?: string,
-    "payload"?: QueryResult.webhook_payload,
-    "outputContexts"?: QueryResult.output_contexts,
-    "followupEventInput"?: Sessions.detectIntent
+    "payload"?: object,
+    "outputContexts"?: [Context],
+    "followupEventInput"?: object
 }
 
 export class DialogflowFirebaseFulfillment {
