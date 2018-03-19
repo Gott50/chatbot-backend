@@ -38,7 +38,7 @@ export class DialogflowFirebaseFulfillment {
     }
 
     run(req, response) {
-        console.log('Request ' + JSON.stringify(req));
+        console.log('Request:',req);
         let userId: number = this.getUserID(req);
         if (userId) {
             this.userProfileRequest(userId).then((userProfile: UserProfile) =>
