@@ -4,12 +4,27 @@ import {Request, Response} from "firebase-functions";
 
 const PAGE_ACCESS_TOKEN = "";
 
+interface UserInfo {
+    "first_name": string,
+    "last_name": string,
+    "profile_pic": string,
+    "locale": string,
+    "timezone": number,
+    "gender": string,
+    "is_payment_enabled": boolean,
+    "last_ad_referral": {
+        "source": string,
+        "type": string,
+        "ad_id": string
+    }
+}
+
 export const dialogflowFirebaseFulfillment = functions.https.onRequest((req: Request, response: Response) => {
     console.log('Dialogflow Request headers: ' + JSON.stringify(req.headers));
     console.log('Dialogflow Request body: ' + JSON.stringify(req.body));
     let userId: number = getUserID(req);
     if (userId) {
-        userInfoRequest(userId);
+        userInfoRequest(userId).then((userInfo: UserInfo) => console.log(userInfo));
     } else {
         console.log('Invalid Webhook Request (facebook_sender_id not found)');
         response.status(400).end('Invalid Webhook Request (facebook_sender_id not found)');
