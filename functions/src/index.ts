@@ -1,5 +1,5 @@
 import functions = require("firebase-functions");
-import {request} from "request";
+import request = require('request');
 import {Request, Response} from "firebase-functions";
 import {QueryResult, Sessions} from "dialogflow";
 
@@ -59,25 +59,23 @@ function getUserID(req: Request) {
 }
 
 function userProfileRequest(userId: number) {
-    console.log("userProfileRequest("+ userId +")");
-    console.log("PAGE_ACCESS_TOKEN=", PAGE_ACCESS_TOKEN);
-    return new Promise((resolve, reject) => {
-        request({
-                method: 'GET',
-                uri: "https://graph.facebook.com/v2.6/" + userId + "?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=" + PAGE_ACCESS_TOKEN
-            },
-            function (error, response) {
-                if (error) {
-                    console.error('Error while userProfileRequest: ', error);
-                    reject(error);
-                } else {
-                    console.log('userProfileRequest result: ', response.body);
-                    let userInfo = JSON.parse(response.body);
-                    userInfo.fb_id = userId;
-                    resolve(userInfo);
-                }
-            });
-    });
+    let uri = {
+        method: 'GET',
+        uri: "https://graph.facebook.com/v2.6/" + userId + "?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=" + PAGE_ACCESS_TOKEN
+    };
+    console.log("userProfileRequest:", uri);
+    return new Promise((resolve, reject) => request(uri, (error, response) => {
+        if (error) {
+            console.error('Error while userProfileRequest: ', error);
+            reject(error);
+        }
+        else {
+            console.log('userProfileRequest result: ', response.body);
+            let userInfo = JSON.parse(response.body);
+            userInfo.fb_id = userId;
+            resolve(userInfo);
+        }
+    }));
 }
 
 /**
