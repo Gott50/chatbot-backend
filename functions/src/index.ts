@@ -1,9 +1,10 @@
 import functions = require("firebase-functions");
 import {request} from "request";
+import {Request, Response} from "firebase-functions";
 
 const PAGE_ACCESS_TOKEN = "";
 
-export const dialogflowFirebaseFulfillment = functions.https.onRequest((req, response) => {
+export const dialogflowFirebaseFulfillment = functions.https.onRequest((req: Request, response: Response) => {
     console.log('Dialogflow Request headers: ' + JSON.stringify(req.headers));
     console.log('Dialogflow Request body: ' + JSON.stringify(req.body));
     let userId: number = getUserID(req);
@@ -16,7 +17,7 @@ export const dialogflowFirebaseFulfillment = functions.https.onRequest((req, res
     }
 });
 
-function getUserID(req) {
+function getUserID(req: Request) {
     try {
         if (req.body.result) {
             return req.body.originalRequest.data.data.sender.id;
@@ -31,7 +32,7 @@ function getUserID(req) {
     }
 }
 
-function userInfoRequest(userId) {
+function userInfoRequest(userId: number) {
     return new Promise((resolve, reject) => {
         request({
                 method: 'GET',
