@@ -38,11 +38,11 @@ export class DialogflowFirebaseFulfillment {
     }
 
     run(req, response) {
-        console.log('Dialogflow Request headers: ' + JSON.stringify(req.headers));
-        console.log('Dialogflow Request body: ' + JSON.stringify(req.body));
+        console.log('Request ' + JSON.stringify(req));
         let userId: number = this.getUserID(req);
         if (userId) {
-            this.userProfileRequest(userId).then((userProfile: UserProfile) => this.sendV2Response(response, JSON.stringify(userProfile)))
+            this.userProfileRequest(userId).then((userProfile: UserProfile) =>
+                this.sendV2Response(response, JSON.stringify(userProfile)))
                 .catch(reason => {
                     console.log(reason);
                     response.status(400).end(JSON.stringify(reason));
