@@ -108,9 +108,18 @@ export class DialogflowFirebaseFulfillment {
             if (responseToUser.fulfillmentMessages) {
                 responseJson.fulfillmentMessages = responseToUser.fulfillmentMessages;
             }
+            if (responseToUser.source) {
+                responseJson.source = responseToUser.source;
+            }
+            if (responseToUser.payload) {
+                responseJson.payload = responseToUser.payload;
+            }
             // Optional: add contexts (https://dialogflow.com/docs/contexts)
             if (responseToUser.outputContexts) {
                 responseJson.outputContexts = responseToUser.outputContexts;
+            }
+            if (responseToUser.followupEventInput) {
+                responseJson.followupEventInput = responseToUser.followupEventInput;
             }
             // Send the response to Dialogflow
             console.log('Response to Dialogflow: ' + JSON.stringify(responseJson));
