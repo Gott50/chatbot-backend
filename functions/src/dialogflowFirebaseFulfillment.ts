@@ -85,7 +85,11 @@ export class DialogflowFirebaseFulfillment {
         let userId: number = DialogflowFirebaseFulfillment.getUserID(req);
         if (userId) {
             this.userProfileRequest(userId).then((userProfile: UserProfile) =>
-                DialogflowFirebaseFulfillment.sendV2Response(response, JSON.stringify(userProfile)))
+                DialogflowFirebaseFulfillment.sendV2Response(response,
+                    this.addContext(req.body.session, req.body.queryResult, {
+                        context: "user_profile",
+                        parameters: userProfile
+                    })))
                 .catch(reason => {
                     console.log(reason);
                     response.status(400).end(JSON.stringify(reason));
@@ -93,25 +97,25 @@ export class DialogflowFirebaseFulfillment {
                 });
         } else {
             console.log('Invalid Webhook Request (facebook_sender_id not found)');
-            let responseToUser = req.body.queryResult;
-            responseToUser.outputContexts = [
-                {
-                    "name": req.body.session + "/contexts/user_profile",
-                    "lifespanCount": 5,
-                    "parameters": {
-                        "Name": "param value"
-                    }
-                }
-            ];
-            responseToUser = JSON.parse(JSON.stringify(responseToUser, (key, value) => {
-                if (typeof value === 'string') {
-                    return value.replace("#user_profile.Name", "fff");
-                }
-                return value;
-            }));
-
-            DialogflowFirebaseFulfillment.sendV2Response(response, responseToUser);
             return;
         }
+    }
+
+    private addContext(session: string, responseToUser: ResponseJson, context: { context: string; parameters: object }): ResponseJson {
+        responseToUser = JSON.parse(JSON.stringify(responseToUser, (k, v) => {
+            if (typeof v === 'string') {
+                for (let prop in context.parameters)
+                    v = v.replace("#" + context.context + "." + prop, context.parameters[prop]);
+            }
+            return v;
+        }));
+        responseToUser.outputContexts = [
+            {
+                "name": session + "/contexts/" + context.context,
+                "lifespanCount": 5,
+                "parameters": context.parameters
+            }
+        ];
+        return responseToUser;
     }
 }
