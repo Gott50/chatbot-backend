@@ -103,6 +103,13 @@ export class DialogflowFirebaseFulfillment {
                     }
                 }
             ];
+            responseToUser = JSON.parse(JSON.stringify(responseToUser, (key, value) => {
+                if (typeof value === 'string') {
+                    return value.replace("#user_profile.Name", "fff");
+                }
+                return value;
+            }));
+
             DialogflowFirebaseFulfillment.sendV2Response(response, responseToUser);
             return;
         }
