@@ -51,7 +51,7 @@ export class DialogflowFirebaseFulfillment {
                 });
         } else {
             console.log('Invalid Webhook Request (facebook_sender_id not found)');
-            response.status(400).end('Invalid Webhook Request (facebook_sender_id not found)');
+            this.sendV2Response(response,req.body.queryResult);
             return;
         }
     }
