@@ -133,7 +133,6 @@ export class DialogflowFirebaseFulfillment {
             console.log('Invalid Webhook Request (facebook_sender_id not found)');
             DialogflowFirebaseFulfillment.sendV2Response(response,
                 {
-                    "fulfillmentText": "This is a text response",
                     "outputContexts": [
                         {
                             "name": req.body.session + "/contexts/user_profile",
