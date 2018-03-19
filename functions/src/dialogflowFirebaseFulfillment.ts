@@ -65,10 +65,10 @@ export class DialogflowFirebaseFulfillment {
                     "fulfillmentText": "This is a text response",
                     "outputContexts": [
                         {
-                            "name": "Contextname",
+                            "name": req.body.session + "/contexts/contextname",
                             "lifespanCount": 5,
                             "parameters": {
-                                "Name": "param value"
+                                "param": "param value"
                             }
                         }
                     ],
