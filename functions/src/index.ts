@@ -4,7 +4,10 @@ import {Request, Response} from "firebase-functions";
 
 const PAGE_ACCESS_TOKEN = "";
 
-interface UserInfo {
+/**
+ * https://developers.facebook.com/docs/messenger-platform/identity/user-profile
+ */
+interface UserProfile {
     "first_name": string,
     "last_name": string,
     "profile_pic": string,
@@ -24,7 +27,7 @@ export const dialogflowFirebaseFulfillment = functions.https.onRequest((req: Req
     console.log('Dialogflow Request body: ' + JSON.stringify(req.body));
     let userId: number = getUserID(req);
     if (userId) {
-        userInfoRequest(userId).then((userInfo: UserInfo) => console.log(userInfo));
+        userProfileRequest(userId).then((userProfile: UserProfile) => console.log(userProfile));
     } else {
         console.log('Invalid Webhook Request (facebook_sender_id not found)');
         response.status(400).end('Invalid Webhook Request (facebook_sender_id not found)');
@@ -47,7 +50,7 @@ function getUserID(req: Request) {
     }
 }
 
-function userInfoRequest(userId: number) {
+function userProfileRequest(userId: number) {
     return new Promise((resolve, reject) => {
         request({
                 method: 'GET',
@@ -55,10 +58,10 @@ function userInfoRequest(userId: number) {
             },
             function (error, response) {
                 if (error) {
-                    console.error('Error while userInfoRequest: ', error);
+                    console.error('Error while userProfileRequest: ', error);
                     reject(error);
                 } else {
-                    console.log('userInfoRequest result: ', response.body);
+                    console.log('userProfileRequest result: ', response.body);
                     let userInfo = JSON.parse(response.body);
                     userInfo.fb_id = userId;
                     resolve(userInfo);
