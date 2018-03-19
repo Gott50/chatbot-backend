@@ -3,7 +3,7 @@ import bodyParser = require('body-parser');
 import express = require('express');
 const app = express();
 
-app.use(bodyParser);
+app.use(bodyParser.json());
 app.set('port', process.env.PORT || 5000);
 
 // Load environment variables from .env file
