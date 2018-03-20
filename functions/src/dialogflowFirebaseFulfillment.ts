@@ -87,7 +87,7 @@ export class DialogFlowUtils {
         }
     }
 
-    protected addContext(session: string, responseToUser: ResponseJson, context: { context: string; parameters: object }): ResponseJson {
+    static addContext(session: string, responseToUser: ResponseJson, context: { context: string; parameters: object }): ResponseJson {
         responseToUser = JSON.parse(JSON.stringify(responseToUser, (k, v) => {
             if (typeof v === 'string') {
                 for (let prop in context.parameters)
@@ -106,11 +106,10 @@ export class DialogFlowUtils {
     }
 }
 
-export class DialogflowFirebaseFulfillment extends DialogFlowUtils {
+export class DialogflowFirebaseFulfillment {
     private requestUserProfile: RequestUserProfile;
 
     constructor(PAGE_ACCESS_TOKEN: string) {
-        super();
         this.requestUserProfile = new RequestUserProfile(PAGE_ACCESS_TOKEN);
     }
 
@@ -118,8 +117,8 @@ export class DialogflowFirebaseFulfillment extends DialogFlowUtils {
     run(req, response) {
         console.log('Request:', req.body);
         this.requestUserProfile.userProfileRequest(req).then((userProfile: UserProfile) =>
-            DialogflowFirebaseFulfillment.sendV2Response(response,
-                this.addContext(req.body.session, req.body.queryResult, {
+            DialogFlowUtils.sendV2Response(response,
+                DialogFlowUtils.addContext(req.body.session, req.body.queryResult, {
                     context: "user_profile",
                     parameters: userProfile
                 })))
