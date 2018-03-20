@@ -2,8 +2,8 @@ import request = require('request');
 import {ResponseJson, UserProfile} from "./interfaces";
 
 
-export class DialogflowFirebaseFulfillment {
-    private PAGE_ACCESS_TOKEN;
+export class RequestUserProfile {
+    protected PAGE_ACCESS_TOKEN;
 
     constructor(PAGE_ACCESS_TOKEN: string) {
         this.PAGE_ACCESS_TOKEN = PAGE_ACCESS_TOKEN;
@@ -24,6 +24,30 @@ export class DialogflowFirebaseFulfillment {
         }
     }
 
+    userProfileRequest(userId: number) {
+        let uri = {
+            method: 'GET',
+            uri: "https://graph.facebook.com/v2.6/" + userId +
+            "?fields=first_name,last_name,profile_pic,locale,timezone,gender,is_payment_enabled,last_ad_referral" +
+            "&access_token=" + this.PAGE_ACCESS_TOKEN
+        };
+        console.log("userProfileRequest:", uri);
+        return new Promise((resolve, reject) => request(uri, (error, response) => {
+            if (error) {
+                console.error('Error while userProfileRequest: ', error);
+                reject(error);
+            }
+            else {
+                console.log('userProfileRequest result: ', response.body);
+                let userInfo = JSON.parse(response.body);
+                userInfo.fb_id = userId;
+                resolve(userInfo);
+            }
+        }));
+    }
+}
+
+export class DialogflowFirebaseFulfillment extends RequestUserProfile {
     static sendV2Response(response, responseToUser: string | ResponseJson) {
         console.log("sendV2Response:", responseToUser);
         // if the response is a string send it as a response to the user
@@ -56,28 +80,6 @@ export class DialogflowFirebaseFulfillment {
             console.log('Response to Dialogflow: ' + JSON.stringify(responseJson));
             response.json(responseJson);
         }
-    }
-
-    userProfileRequest(userId: number) {
-        let uri = {
-            method: 'GET',
-            uri: "https://graph.facebook.com/v2.6/" + userId +
-            "?fields=first_name,last_name,profile_pic,locale,timezone,gender,is_payment_enabled,last_ad_referral" +
-            "&access_token=" + this.PAGE_ACCESS_TOKEN
-        };
-        console.log("userProfileRequest:", uri);
-        return new Promise((resolve, reject) => request(uri, (error, response) => {
-            if (error) {
-                console.error('Error while userProfileRequest: ', error);
-                reject(error);
-            }
-            else {
-                console.log('userProfileRequest result: ', response.body);
-                let userInfo = JSON.parse(response.body);
-                userInfo.fb_id = userId;
-                resolve(userInfo);
-            }
-        }));
     }
 
     run(req, response) {
