@@ -52,14 +52,7 @@ export class RequestUserProfile {
     }
 }
 
-export class DialogflowFirebaseFulfillment {
-    private requestUserProfile: RequestUserProfile;
-
-    constructor(PAGE_ACCESS_TOKEN: string) {
-        this.requestUserProfile = new RequestUserProfile(PAGE_ACCESS_TOKEN);
-    }
-
-
+export class DialogFlowUtils {
     static sendV2Response(response, responseToUser: string | ResponseJson) {
         console.log("sendV2Response:", responseToUser);
         // if the response is a string send it as a response to the user
@@ -94,22 +87,7 @@ export class DialogflowFirebaseFulfillment {
         }
     }
 
-    run(req, response) {
-        console.log('Request:', req.body);
-        this.requestUserProfile.userProfileRequest(req).then((userProfile: UserProfile) =>
-            DialogflowFirebaseFulfillment.sendV2Response(response,
-                this.addContext(req.body.session, req.body.queryResult, {
-                    context: "user_profile",
-                    parameters: userProfile
-                })))
-            .catch(reason => {
-                console.log(reason);
-                response.status(400).end(JSON.stringify(reason));
-                return;
-            });
-    }
-
-    private addContext(session: string, responseToUser: ResponseJson, context: { context: string; parameters: object }): ResponseJson {
+    protected addContext(session: string, responseToUser: ResponseJson, context: { context: string; parameters: object }): ResponseJson {
         responseToUser = JSON.parse(JSON.stringify(responseToUser, (k, v) => {
             if (typeof v === 'string') {
                 for (let prop in context.parameters)
@@ -126,4 +104,30 @@ export class DialogflowFirebaseFulfillment {
         ];
         return responseToUser;
     }
+}
+
+export class DialogflowFirebaseFulfillment extends DialogFlowUtils {
+    private requestUserProfile: RequestUserProfile;
+
+    constructor(PAGE_ACCESS_TOKEN: string) {
+        super();
+        this.requestUserProfile = new RequestUserProfile(PAGE_ACCESS_TOKEN);
+    }
+
+
+    run(req, response) {
+        console.log('Request:', req.body);
+        this.requestUserProfile.userProfileRequest(req).then((userProfile: UserProfile) =>
+            DialogflowFirebaseFulfillment.sendV2Response(response,
+                this.addContext(req.body.session, req.body.queryResult, {
+                    context: "user_profile",
+                    parameters: userProfile
+                })))
+            .catch(reason => {
+                console.log(reason);
+                response.status(400).end(JSON.stringify(reason));
+                return;
+            });
+    }
+
 }
