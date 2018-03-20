@@ -1,5 +1,5 @@
 import request = require('request');
-import {DialogFlowUtils} from "./dialogflowFirebaseFulfillment";
+import {DialogFlowUtils} from "./DialogFlowUtils";
 
 export class RequestUserProfile {
     protected PAGE_ACCESS_TOKEN;
