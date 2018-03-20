@@ -9,23 +9,8 @@ export class RequestUserProfile {
         this.PAGE_ACCESS_TOKEN = PAGE_ACCESS_TOKEN;
     }
 
-    static getUserID(req): number {
-        try {
-            if (req.body.result) {
-                return req.body.originalRequest.data.data.sender.id;
-            } else if (req.body.queryResult) {
-                return req.body.originalDetectIntentRequest.payload.data.sender.id;
-            } else {
-                return undefined;
-            }
-        } catch (err) {
-            console.error(err);
-            return undefined;
-        }
-    }
-
     userProfileRequest(req) {
-        let userId = RequestUserProfile.getUserID(req);
+        let userId = DialogFlowUtils.getUserID(req);
         if (!userId) {
             return Promise.reject(new Error('Invalid Webhook Request (facebook_sender_id not found)'));
         }
@@ -103,6 +88,21 @@ export class DialogFlowUtils {
             }
         ];
         return responseToUser;
+    }
+
+    static getUserID(req): number {
+        try {
+            if (req.body.result) {
+                return req.body.originalRequest.data.data.sender.id;
+            } else if (req.body.queryResult) {
+                return req.body.originalDetectIntentRequest.payload.data.sender.id;
+            } else {
+                return undefined;
+            }
+        } catch (err) {
+            console.error(err);
+            return undefined;
+        }
     }
 }
 
