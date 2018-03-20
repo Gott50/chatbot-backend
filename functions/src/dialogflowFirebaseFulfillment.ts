@@ -21,7 +21,7 @@ export class DialogflowFirebaseFulfillment {
                 })))
             .catch(reason => {
                 console.log(reason);
-                response.status(400).end(JSON.stringify(reason));
+                DialogFlowUtils.sendV2Response(response, JSON.stringify(reason));
                 return;
             });
     }
