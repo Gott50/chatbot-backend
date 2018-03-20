@@ -47,7 +47,14 @@ export class RequestUserProfile {
     }
 }
 
-export class DialogflowFirebaseFulfillment extends RequestUserProfile {
+export class DialogflowFirebaseFulfillment {
+    private requestUserProfile: RequestUserProfile;
+
+    constructor(PAGE_ACCESS_TOKEN: string) {
+        this.requestUserProfile = new RequestUserProfile(PAGE_ACCESS_TOKEN);
+    }
+
+
     static sendV2Response(response, responseToUser: string | ResponseJson) {
         console.log("sendV2Response:", responseToUser);
         // if the response is a string send it as a response to the user
@@ -84,9 +91,9 @@ export class DialogflowFirebaseFulfillment extends RequestUserProfile {
 
     run(req, response) {
         console.log('Request:', req.body);
-        let userId: number = DialogflowFirebaseFulfillment.getUserID(req);
+        let userId: number = RequestUserProfile.getUserID(req);
         if (userId) {
-            this.userProfileRequest(userId).then((userProfile: UserProfile) =>
+            this.requestUserProfile.userProfileRequest(userId).then((userProfile: UserProfile) =>
                 DialogflowFirebaseFulfillment.sendV2Response(response,
                     this.addContext(req.body.session, req.body.queryResult, {
                         context: "user_profile",
