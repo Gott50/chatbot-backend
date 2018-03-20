@@ -9,7 +9,7 @@ export class RequestUserProfile {
         this.PAGE_ACCESS_TOKEN = PAGE_ACCESS_TOKEN;
     }
 
-    static getUserID(req) {
+    static getUserID(req): number {
         try {
             if (req.body.result) {
                 return req.body.originalRequest.data.data.sender.id;
@@ -24,7 +24,12 @@ export class RequestUserProfile {
         }
     }
 
-    userProfileRequest(userId: number) {
+    userProfileRequest(req) {
+        let userId = RequestUserProfile.getUserID(req);
+        if (!userId) {
+            return Promise.reject(new Error('Invalid Webhook Request (facebook_sender_id not found)'));
+        }
+
         let uri = {
             method: 'GET',
             uri: "https://graph.facebook.com/v2.6/" + userId +
@@ -91,23 +96,17 @@ export class DialogflowFirebaseFulfillment {
 
     run(req, response) {
         console.log('Request:', req.body);
-        let userId: number = RequestUserProfile.getUserID(req);
-        if (userId) {
-            this.requestUserProfile.userProfileRequest(userId).then((userProfile: UserProfile) =>
-                DialogflowFirebaseFulfillment.sendV2Response(response,
-                    this.addContext(req.body.session, req.body.queryResult, {
-                        context: "user_profile",
-                        parameters: userProfile
-                    })))
-                .catch(reason => {
-                    console.log(reason);
-                    response.status(400).end(JSON.stringify(reason));
-                    return;
-                });
-        } else {
-            console.log('Invalid Webhook Request (facebook_sender_id not found)');
-            return;
-        }
+        this.requestUserProfile.userProfileRequest(req).then((userProfile: UserProfile) =>
+            DialogflowFirebaseFulfillment.sendV2Response(response,
+                this.addContext(req.body.session, req.body.queryResult, {
+                    context: "user_profile",
+                    parameters: userProfile
+                })))
+            .catch(reason => {
+                console.log(reason);
+                response.status(400).end(JSON.stringify(reason));
+                return;
+            });
     }
 
     private addContext(session: string, responseToUser: ResponseJson, context: { context: string; parameters: object }): ResponseJson {
