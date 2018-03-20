@@ -53,12 +53,12 @@ export class DialogFlowUtils {
         return responseToUser;
     }
 
-    static getUserID(req): number {
+    static getUserID(body: any): number {
         try {
-            if (req.body.result) {
-                return req.body.originalRequest.data.data.sender.id;
-            } else if (req.body.queryResult) {
-                return req.body.originalDetectIntentRequest.payload.data.sender.id;
+            if (body.result) {
+                return body.originalRequest.data.data.sender.id;
+            } else if (body.queryResult) {
+                return body.originalDetectIntentRequest.payload.data.sender.id;
             } else {
                 return undefined;
             }

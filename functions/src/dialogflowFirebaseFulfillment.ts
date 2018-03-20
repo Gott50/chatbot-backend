@@ -13,7 +13,7 @@ export class DialogflowFirebaseFulfillment {
 
     run(req, response) {
         console.log('Request:', req.body);
-        this.requestUserProfile.userProfileRequest(req).then((userProfile: UserProfile) =>
+        this.requestUserProfile.userProfileRequest(req.body).then((userProfile: UserProfile) =>
             DialogFlowUtils.sendV2Response(response,
                 DialogFlowUtils.addContext(req.body.session, req.body.queryResult, {
                     context: "user_profile",

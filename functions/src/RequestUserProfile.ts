@@ -8,8 +8,8 @@ export class RequestUserProfile {
         this.PAGE_ACCESS_TOKEN = PAGE_ACCESS_TOKEN;
     }
 
-    userProfileRequest(req) {
-        let userId = DialogFlowUtils.getUserID(req);
+    userProfileRequest(body: any) {
+        let userId = DialogFlowUtils.getUserID(body);
         if (!userId) {
             return Promise.reject(new Error('Invalid Webhook Request (facebook_sender_id not found)'));
         }
