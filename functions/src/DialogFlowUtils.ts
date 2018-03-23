@@ -46,7 +46,7 @@ export class DialogFlowUtils {
         responseToUser.outputContexts = [
             {
                 "name": session + "/contexts/" + context.context,
-                "lifespanCount": 5,
+                "lifespanCount": 10,
                 "parameters": context.parameters
             }
         ];
